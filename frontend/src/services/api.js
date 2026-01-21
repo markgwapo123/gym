@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5001/api';
+// Use environment variable if available, otherwise default to Render backend
+const API_URL = process.env.REACT_APP_API_URL || 'https://gym-bfda.onrender.com/api';
 
 // Create axios instance
 const api = axios.create({
