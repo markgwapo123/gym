@@ -27,6 +27,11 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'healthy' });
 });
 
+// Root route for friendly status
+app.get('/', (req, res) => {
+  res.send('Gym API is running!');
+});
+
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
