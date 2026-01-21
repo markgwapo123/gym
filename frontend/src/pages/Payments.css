@@ -1,0 +1,13 @@
+.payment-info {
+  background-color: #e3f2fd;
+  padding: 12px;
+  border-radius: 4px;
+  margin: 15px 0;
+  border-left: 4px solid #2196F3;
+}
+
+.payment-info p {
+  margin: 0;
+  font-size: 13px;
+  color: #1565c0;
+}

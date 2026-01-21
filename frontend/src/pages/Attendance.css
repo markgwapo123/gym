@@ -1,0 +1,107 @@
+.attendance-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+@media (max-width: 968px) {
+  .attendance-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.members-list,
+.attendance-list {
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.member-item,
+.attendance-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  border-bottom: 1px solid #eee;
+  transition: background-color 0.2s;
+}
+
+.member-item:hover,
+.attendance-item:hover {
+  background-color: #f8f9fa;
+}
+
+.member-item:last-child,
+.attendance-item:last-child {
+  border-bottom: none;
+}
+
+.member-info,
+.attendance-info {
+  flex: 1;
+}
+
+.member-name,
+.attendance-name {
+  font-weight: 600;
+  font-size: 16px;
+  margin-bottom: 4px;
+  color: #333;
+}
+
+.member-contact,
+.attendance-time,
+.attendance-staff {
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 4px;
+}
+
+.member-actions {
+  margin-left: 15px;
+}
+
+.attendance-status {
+  margin-left: 15px;
+}
+
+@media (max-width: 768px) {
+  .attendance-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .member-item,
+  .attendance-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px;
+  }
+
+  .member-actions,
+  .attendance-status {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .member-actions button,
+  .attendance-status button {
+    width: 100%;
+  }
+
+  .member-name,
+  .attendance-name {
+    font-size: 15px;
+  }
+
+  .member-contact,
+  .attendance-time,
+  .attendance-staff {
+    font-size: 12px;
+  }
+
+  .card h2 {
+    font-size: 1.2em;
+  }
+}
