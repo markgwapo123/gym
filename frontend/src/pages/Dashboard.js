@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { dashboardAPI } from '../services/api';
 import './Dashboard.css';
 
@@ -6,6 +7,7 @@ function Dashboard() {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
     loadStats();
@@ -31,7 +33,7 @@ function Dashboard() {
       <h1>Dashboard</h1>
       
       <div className="stats-grid">
-        <div className="stat-card stat-primary">
+        <div className="stat-card stat-primary" onClick={() => navigate('/members')} style={{ cursor: 'pointer' }}>
           <div className="stat-icon">👥</div>
           <div className="stat-content">
             <div className="stat-value">{stats.total_members}</div>
@@ -39,7 +41,7 @@ function Dashboard() {
           </div>
         </div>
 
-        <div className="stat-card stat-success">
+        <div className="stat-card stat-success" onClick={() => navigate('/members')} style={{ cursor: 'pointer' }}>
           <div className="stat-icon">✅</div>
           <div className="stat-content">
             <div className="stat-value">{stats.active_members}</div>
@@ -47,7 +49,7 @@ function Dashboard() {
           </div>
         </div>
 
-        <div className="stat-card stat-warning">
+        <div className="stat-card stat-warning" onClick={() => navigate('/members')} style={{ cursor: 'pointer' }}>
           <div className="stat-icon">⚠️</div>
           <div className="stat-content">
             <div className="stat-value">{stats.expiring_soon}</div>
@@ -55,7 +57,7 @@ function Dashboard() {
           </div>
         </div>
 
-        <div className="stat-card stat-info">
+        <div className="stat-card stat-info" onClick={() => navigate('/attendance')} style={{ cursor: 'pointer' }}>
           <div className="stat-icon">📅</div>
           <div className="stat-content">
             <div className="stat-value">{stats.today_attendance}</div>
@@ -63,7 +65,7 @@ function Dashboard() {
           </div>
         </div>
 
-        <div className="stat-card stat-active">
+        <div className="stat-card stat-active" onClick={() => navigate('/attendance')} style={{ cursor: 'pointer' }}>
           <div className="stat-icon">🏃</div>
           <div className="stat-content">
             <div className="stat-value">{stats.currently_checked_in}</div>
@@ -71,7 +73,7 @@ function Dashboard() {
           </div>
         </div>
 
-        <div className="stat-card stat-revenue">
+        <div className="stat-card stat-revenue" onClick={() => navigate('/payments')} style={{ cursor: 'pointer' }}>
           <div className="stat-icon">💰</div>
           <div className="stat-content">
             <div className="stat-value">₱{stats.monthly_revenue.toLocaleString()}</div>
@@ -83,13 +85,13 @@ function Dashboard() {
       <div className="quick-actions">
         <h2>Quick Actions</h2>
         <div className="action-buttons">
-          <button className="btn btn-primary" onClick={() => window.location.href = '/attendance'}>
+          <button className="btn btn-primary" onClick={() => navigate('/attendance')}>
             Check-In Member
           </button>
-          <button className="btn btn-secondary" onClick={() => window.location.href = '/members'}>
+          <button className="btn btn-secondary" onClick={() => navigate('/members')}>
             Add New Member
           </button>
-          <button className="btn btn-success" onClick={() => window.location.href = '/payments'}>
+          <button className="btn btn-success" onClick={() => navigate('/payments')}>
             Record Payment
           </button>
         </div>
