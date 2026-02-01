@@ -10,11 +10,13 @@ function Members() {
   const [showModal, setShowModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showMobileMembersModal, setShowMobileMembersModal] = useState(false);
+  const [showRenewalModal, setShowRenewalModal] = useState(false);
   const [mobileFilterType, setMobileFilterType] = useState('all');
   const [selectedMember, setSelectedMember] = useState(null);
   const [memberLogs, setMemberLogs] = useState({ attendance: [], payments: [] });
   const [editingMember, setEditingMember] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [renewalData, setRenewalData] = useState({ membership_type: 'Monthly', amount: 500 });
   const { user } = useAuth();
 
   const [formData, setFormData] = useState({
@@ -167,6 +169,50 @@ function Members() {
       } catch (err) {
         alert('Failed to delete member');
       }
+    }
+  };
+
+  const openRenewalModal = (member) => {
+    setSelectedMember(member);
+    setRenewalData({
+      membership_type: member.membership_type || 'Monthly',
+      amount: membershipPrices[member.membership_type] || membershipPrices.Monthly
+    });
+    setShowRenewalModal(true);
+  };
+
+  const handleRenewalSubmit = async (e) => {
+    e.preventDefault();
+    
+    try {
+      setLoading(true);
+      
+      // Record payment which will automatically renew the membership
+      await paymentsAPI.create({
+        member_id: selectedMember._id,
+        amount: renewalData.amount,
+        membership_plan: renewalData.membership_type
+      });
+      
+      alert(`Membership renewed successfully! ${selectedMember.name}'s account is now active.`);
+      setShowRenewalModal(false);
+      setShowDetailsModal(false);
+      loadMembers();
+    } catch (err) {
+      alert('Failed to renew membership: ' + (err.response?.data?.message || err.message));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRenewalChange = (field, value) => {
+    if (field === 'membership_type') {
+      setRenewalData({
+        membership_type: value,
+        amount: membershipPrices[value] || 0
+      });
+    } else {
+      setRenewalData(prev => ({ ...prev, [field]: value }));
     }
   };
 
@@ -346,19 +392,39 @@ function Members() {
                 </td>
                 {user.role === 'Admin' && (
                   <td>
-                    <button 
-                      className="btn btn-sm btn-secondary" 
-                      onClick={() => handleEdit(member)}
-                    >
-                      Edit
-                    </button>
-                    <button 
-                      className="btn btn-sm btn-danger" 
-                      onClick={() => handleDelete(member._id)}
-                      style={{ marginLeft: '5px' }}
-                    >
-                      Delete
-                    </button>
+                    {member.status === 'Expired' ? (
+                      <>
+                        <button 
+                          className="btn btn-sm btn-primary" 
+                          onClick={() => openRenewalModal(member)}
+                          style={{ marginRight: '5px' }}
+                        >
+                          🔄 Renew
+                        </button>
+                        <button 
+                          className="btn btn-sm btn-secondary" 
+                          onClick={() => handleEdit(member)}
+                        >
+                          Edit
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <button 
+                          className="btn btn-sm btn-secondary" 
+                          onClick={() => handleEdit(member)}
+                        >
+                          Edit
+                        </button>
+                        <button 
+                          className="btn btn-sm btn-danger" 
+                          onClick={() => handleDelete(member._id)}
+                          style={{ marginLeft: '5px' }}
+                        >
+                          Delete
+                        </button>
+                      </>
+                    )}
                   </td>
                 )}
               </tr>
@@ -605,30 +671,30 @@ function Members() {
             {/* Attendance Logs Section */}
             <div style={{ marginBottom: '20px' }}>
               <h3>Attendance Logs ({memberLogs.attendance.length})</h3>
-              <div style={{ maxHeight: '200px', overflowY: 'auto', border: '1px solid #ddd', borderRadius: '8px' }}>
+              <div style={{ maxHeight: '200px', overflowY: 'auto', overflowX: 'auto', border: '1px solid #ddd', borderRadius: '8px' }}>
                 {memberLogs.attendance.length > 0 ? (
-                  <table style={{ width: '100%', fontSize: '0.9em' }}>
+                  <table style={{ width: '100%', fontSize: '0.9em', minWidth: '600px' }}>
                     <thead style={{ position: 'sticky', top: 0, background: '#fff' }}>
                       <tr>
-                        <th style={{ padding: '10px', borderBottom: '2px solid #ddd' }}>Date</th>
-                        <th style={{ padding: '10px', borderBottom: '2px solid #ddd' }}>Check In</th>
-                        <th style={{ padding: '10px', borderBottom: '2px solid #ddd' }}>Check Out</th>
-                        <th style={{ padding: '10px', borderBottom: '2px solid #ddd' }}>Staff</th>
+                        <th style={{ padding: '10px', borderBottom: '2px solid #ddd', textAlign: 'left', whiteSpace: 'nowrap' }}>Date</th>
+                        <th style={{ padding: '10px', borderBottom: '2px solid #ddd', textAlign: 'left', whiteSpace: 'nowrap' }}>Check In</th>
+                        <th style={{ padding: '10px', borderBottom: '2px solid #ddd', textAlign: 'left', whiteSpace: 'nowrap' }}>Check Out</th>
+                        <th style={{ padding: '10px', borderBottom: '2px solid #ddd', textAlign: 'left', whiteSpace: 'nowrap' }}>Staff</th>
                       </tr>
                     </thead>
                     <tbody>
                       {memberLogs.attendance.slice(0, 10).map((log) => (
                         <tr key={log._id}>
-                          <td style={{ padding: '10px', borderBottom: '1px solid #eee' }}>
+                          <td style={{ padding: '10px', borderBottom: '1px solid #eee', whiteSpace: 'nowrap' }}>
                             {new Date(log.check_in_time).toLocaleDateString()}
                           </td>
-                          <td style={{ padding: '10px', borderBottom: '1px solid #eee' }}>
-                            {new Date(log.check_in_time).toLocaleTimeString()}
+                          <td style={{ padding: '10px', borderBottom: '1px solid #eee', whiteSpace: 'nowrap' }}>
+                            {new Date(log.check_in_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                           </td>
-                          <td style={{ padding: '10px', borderBottom: '1px solid #eee' }}>
-                            {log.check_out_time ? new Date(log.check_out_time).toLocaleTimeString() : 'Still in'}
+                          <td style={{ padding: '10px', borderBottom: '1px solid #eee', whiteSpace: 'nowrap' }}>
+                            {log.check_out_time ? new Date(log.check_out_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Still in'}
                           </td>
-                          <td style={{ padding: '10px', borderBottom: '1px solid #eee' }}>
+                          <td style={{ padding: '10px', borderBottom: '1px solid #eee', whiteSpace: 'nowrap' }}>
                             {log.staff_name}
                           </td>
                         </tr>
@@ -639,35 +705,38 @@ function Members() {
                   <p style={{ padding: '20px', textAlign: 'center', color: '#666' }}>No attendance records</p>
                 )}
               </div>
+              <p style={{ fontSize: '12px', color: '#999', marginTop: '5px', fontStyle: 'italic' }}>
+                💡 Scroll horizontally to view all columns
+              </p>
             </div>
 
             {/* Payment History Section */}
             <div style={{ marginBottom: '20px' }}>
               <h3>Payment History ({memberLogs.payments.length})</h3>
-              <div style={{ maxHeight: '200px', overflowY: 'auto', border: '1px solid #ddd', borderRadius: '8px' }}>
+              <div style={{ maxHeight: '200px', overflowY: 'auto', overflowX: 'auto', border: '1px solid #ddd', borderRadius: '8px' }}>
                 {memberLogs.payments.length > 0 ? (
-                  <table style={{ width: '100%', fontSize: '0.9em' }}>
+                  <table style={{ width: '100%', fontSize: '0.9em', minWidth: '500px' }}>
                     <thead style={{ position: 'sticky', top: 0, background: '#fff' }}>
                       <tr>
-                        <th style={{ padding: '10px', borderBottom: '2px solid #ddd' }}>Date</th>
-                        <th style={{ padding: '10px', borderBottom: '2px solid #ddd' }}>Plan</th>
-                        <th style={{ padding: '10px', borderBottom: '2px solid #ddd' }}>Amount</th>
-                        <th style={{ padding: '10px', borderBottom: '2px solid #ddd' }}>Staff</th>
+                        <th style={{ padding: '10px', borderBottom: '2px solid #ddd', textAlign: 'left', whiteSpace: 'nowrap' }}>Date</th>
+                        <th style={{ padding: '10px', borderBottom: '2px solid #ddd', textAlign: 'left', whiteSpace: 'nowrap' }}>Plan</th>
+                        <th style={{ padding: '10px', borderBottom: '2px solid #ddd', textAlign: 'left', whiteSpace: 'nowrap' }}>Amount</th>
+                        <th style={{ padding: '10px', borderBottom: '2px solid #ddd', textAlign: 'left', whiteSpace: 'nowrap' }}>Staff</th>
                       </tr>
                     </thead>
                     <tbody>
                       {memberLogs.payments.map((payment) => (
                         <tr key={payment._id}>
-                          <td style={{ padding: '10px', borderBottom: '1px solid #eee' }}>
+                          <td style={{ padding: '10px', borderBottom: '1px solid #eee', whiteSpace: 'nowrap' }}>
                             {new Date(payment.payment_date).toLocaleDateString()}
                           </td>
-                          <td style={{ padding: '10px', borderBottom: '1px solid #eee' }}>
+                          <td style={{ padding: '10px', borderBottom: '1px solid #eee', whiteSpace: 'nowrap' }}>
                             {payment.membership_plan}
                           </td>
-                          <td style={{ padding: '10px', borderBottom: '1px solid #eee' }}>
+                          <td style={{ padding: '10px', borderBottom: '1px solid #eee', whiteSpace: 'nowrap' }}>
                             ₱{payment.amount.toLocaleString()}
                           </td>
-                          <td style={{ padding: '10px', borderBottom: '1px solid #eee' }}>
+                          <td style={{ padding: '10px', borderBottom: '1px solid #eee', whiteSpace: 'nowrap' }}>
                             {payment.staff_name}
                           </td>
                         </tr>
@@ -678,13 +747,106 @@ function Members() {
                   <p style={{ padding: '20px', textAlign: 'center', color: '#666' }}>No payment records</p>
                 )}
               </div>
+              <p style={{ fontSize: '12px', color: '#999', marginTop: '5px', fontStyle: 'italic' }}>
+                💡 Scroll horizontally to view all columns
+              </p>
             </div>
 
             <div className="modal-actions">
+              {selectedMember.status === 'Expired' && user.role === 'Admin' && (
+                <button 
+                  type="button" 
+                  className="btn btn-primary" 
+                  onClick={() => { setShowDetailsModal(false); openRenewalModal(selectedMember); }}
+                  style={{ marginRight: '10px' }}
+                >
+                  🔄 Renew Membership
+                </button>
+              )}
               <button type="button" className="btn btn-secondary" onClick={() => setShowDetailsModal(false)}>
                 Close
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Renewal Modal */}
+      {showRenewalModal && selectedMember && (
+        <div className="modal-overlay" onClick={() => setShowRenewalModal(false)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '500px' }}>
+            <h2>🔄 Renew Membership</h2>
+            <p style={{ marginBottom: '20px', color: '#666' }}>
+              Renewing membership for: <strong>{selectedMember.name}</strong>
+            </p>
+
+            <form onSubmit={handleRenewalSubmit}>
+              <div className="form-group">
+                <label>Select Membership Plan *</label>
+                <select
+                  value={renewalData.membership_type}
+                  onChange={(e) => handleRenewalChange('membership_type', e.target.value)}
+                  required
+                  style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ddd' }}
+                >
+                  <option value="Daily">Daily - ₱{membershipPrices.Daily}</option>
+                  <option value="Monthly">Monthly - ₱{membershipPrices.Monthly}</option>
+                  <option value="Quarterly">Quarterly - ₱{membershipPrices.Quarterly}</option>
+                  <option value="Annual">Annual - ₱{membershipPrices.Annual}</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label>Payment Amount *</label>
+                <input
+                  type="number"
+                  value={renewalData.amount}
+                  onChange={(e) => handleRenewalChange('amount', parseFloat(e.target.value))}
+                  required
+                  min="0"
+                  step="0.01"
+                  style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ddd' }}
+                />
+              </div>
+
+              <div style={{ 
+                padding: '15px', 
+                background: '#e3f2fd', 
+                borderRadius: '8px', 
+                marginBottom: '20px',
+                border: '1px solid #2196f3'
+              }}>
+                <p style={{ margin: '0 0 5px 0', fontSize: '14px' }}>
+                  <strong>📋 Renewal Details:</strong>
+                </p>
+                <p style={{ margin: '0', fontSize: '13px', color: '#666' }}>
+                  • Plan: {renewalData.membership_type}
+                </p>
+                <p style={{ margin: '0', fontSize: '13px', color: '#666' }}>
+                  • Amount: ₱{renewalData.amount.toLocaleString()}
+                </p>
+                <p style={{ margin: '0', fontSize: '13px', color: '#666' }}>
+                  • New start date: {new Date().toLocaleDateString()}
+                </p>
+                <p style={{ margin: '0', fontSize: '13px', color: '#666' }}>
+                  • Status will change to: <span style={{ color: '#4caf50', fontWeight: 'bold' }}>Active</span>
+                </p>
+              </div>
+
+              <div className="modal-actions">
+                <button type="submit" className="btn btn-primary" disabled={loading}>
+                  {loading ? 'Processing...' : '✅ Confirm Renewal'}
+                </button>
+                <button 
+                  type="button" 
+                  className="btn btn-secondary" 
+                  onClick={() => setShowRenewalModal(false)}
+                  disabled={loading}
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

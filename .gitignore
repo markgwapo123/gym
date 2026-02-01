@@ -11,3 +11,5 @@ ENV/
 .env
 instance/
 .DS_Store
+.vercel
+.env*.local

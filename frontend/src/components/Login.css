@@ -1,9 +1,12 @@
 .login-container {
   min-height: 100vh;
+  min-height: 100dvh; /* Dynamic viewport height for mobile */
   display: flex;
   align-items: center;
   justify-content: center;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+  overflow-y: auto; /* Allow scrolling when keyboard appears */
 }
 
 .login-card {
@@ -13,6 +16,7 @@
   width: 100%;
   max-width: 400px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  margin: auto; /* Center vertically and horizontally */
 }
 
 .login-card h1 {
@@ -35,18 +39,112 @@
   margin-top: 10px;
 }
 
+/* Mobile optimizations */
 @media (max-width: 768px) {
+  .login-container {
+    align-items: flex-start; /* Align to top on mobile */
+    padding: 10px;
+    padding-top: 5vh; /* Start from top with some spacing */
+  }
+
   .login-card {
-    padding: 30px 20px;
-    max-width: 90%;
-    margin: 20px;
+    padding: 25px 20px;
+    max-width: 100%;
+    margin: 0;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
   }
 
   .login-card h1 {
-    font-size: 26px;
+    font-size: 22px;
+    margin-bottom: 8px;
   }
 
   .login-card h2 {
+    font-size: 18px;
+    margin-bottom: 20px;
+  }
+
+  .form-group {
+    margin-bottom: 15px;
+  }
+
+  .form-group label {
+    font-size: 14px;
+    margin-bottom: 6px;
+    display: block;
+    color: #333;
+    font-weight: 500;
+  }
+
+  .form-group input {
+    font-size: 16px; /* Prevents zoom on iOS */
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    width: 100%;
+    box-sizing: border-box;
+    transition: border-color 0.3s;
+  }
+
+  .form-group input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  }
+
+  .btn-block {
+    margin-top: 20px;
+    padding: 14px;
+    font-size: 16px;
+  }
+}
+
+/* Extra small devices */
+@media (max-width: 375px) {
+  .login-container {
+    padding: 5px;
+    padding-top: 3vh;
+  }
+
+  .login-card {
+    padding: 20px 15px;
+  }
+
+  .login-card h1 {
     font-size: 20px;
+  }
+
+  .login-card h2 {
+    font-size: 16px;
+  }
+}
+
+/* Landscape mode on mobile */
+@media (max-height: 500px) and (orientation: landscape) {
+  .login-container {
+    padding-top: 2vh;
+  }
+
+  .login-card {
+    padding: 15px;
+  }
+
+  .login-card h1 {
+    font-size: 18px;
+    margin-bottom: 5px;
+  }
+
+  .login-card h2 {
+    font-size: 16px;
+    margin-bottom: 15px;
+  }
+
+  .form-group {
+    margin-bottom: 10px;
+  }
+
+  .btn-block {
+    margin-top: 10px;
+    padding: 10px;
   }
 }
