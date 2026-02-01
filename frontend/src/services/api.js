@@ -1,7 +1,11 @@
 import axios from 'axios';
 
-// Use environment variable if available, otherwise default to Render backend
-const API_URL = process.env.REACT_APP_API_URL || 'https://gym-bfda.onrender.com/api';
+// Automatically use the correct API URL based on environment
+// Production: Uses REACT_APP_API_URL from .env.production
+// Development: Uses REACT_APP_API_URL from .env.development or defaults to localhost
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001/api';
+
+console.log('🌐 API URL:', API_URL); // Debug: Shows which API URL is being used
 
 // Create axios instance
 const api = axios.create({

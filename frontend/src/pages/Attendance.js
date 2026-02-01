@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { attendanceAPI, membersAPI } from '../services/api';
-import { useAuth } from '../context/AuthContext';
 import './Attendance.css';
 
 function Attendance() {
@@ -12,7 +11,6 @@ function Attendance() {
   const [showLogsModal, setShowLogsModal] = useState(false);
   const [selectedMemberLogs, setSelectedMemberLogs] = useState([]);
   const [selectedMemberName, setSelectedMemberName] = useState('');
-  const { user } = useAuth();
 
   useEffect(() => {
     loadData();

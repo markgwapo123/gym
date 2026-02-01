@@ -70,7 +70,7 @@ function Members() {
         payment_amount: membershipPrices[formData.membership_type] || 0
       }));
     }
-  }, [formData.membership_type]);
+  }, [formData.membership_type, editingMember, membershipPrices]);
 
   useEffect(() => {
     // Auto-calculate end date based on start date and membership type
